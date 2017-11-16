@@ -6,32 +6,14 @@
       <hr>
     </div>
     <div class="container" id="form-view">
-      <form>
-        <div class="form-row align-items-center">
-          <div class="col-auto">
-            <label class="sr-only" for="inlineFormInput">Name</label>
-            <input type="text" class="form-control mb-2 mb-sm-0" id="inlineFormInput" placeholder="Jane Doe">
-          </div>
-          <div class="col-auto">
-            <label class="sr-only" for="inlineFormInputGroup">Username</label>
-            <div class="input-group mb-2 mb-sm-0">
-              <div class="input-group-addon">@</div>
-              <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="Username">
-            </div>
-          </div>
-          <div class="col-auto">
-            <div class="form-check mb-2 mb-sm-0">
-              <label class="form-check-label">
-                <input class="form-check-input" type="checkbox"> Remember me
-              </label>
-            </div>
-          </div>
-          <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
+      <div class="row">
+        <div class="col-10">
+          <input type="text" class="form-control" placeholder="해야할 일을 적어주세요." v-model="inputString">
         </div>
-      </form>
-
+        <div class="col-2">
+          <button class="btn btn-secondary" type="button" @click="addList()">Add List</button>
+        </div>
+      </div>
       <hr>
     </div>
     <div class="container" id="list-view">
@@ -41,16 +23,28 @@
             <div class="alert alert-success" role="alert">
               To do List
             </div>
-            <ul class="list-group">
-               <li class="list-group-item active">Cras justo odio</li>
-              <v-for>
-              <!-- content list using component -->
-              </v-for>
-            </ul>        
+            <div class="list-group">            
+              <template v-for="item in todoList">                
+                     <div class="list-group-item d-flex flex-nowrap" :key="item.id">                                     
+                      <div class="col-2 align-self-baseline">
+                        <input type="checkbox"  :key="item.id">
+                      </div>
+                      <div class="col-8 align-self-baseline">                      
+                        <p>{{ item }}</p> 
+                      </div>
+                      <div class="col- 1 btn-group-sm align-self-baseline" role="group">
+                        <button type="button" class="btn btn-primary btn-group-sm" style="display: block" @click="toMove()">move</button>     
+                      </div>                          
+                      <div class="col- 1 btn-group-sm align-self-baseline" role="group" style="margin-left:5px">
+                        <button type="button" class="btn btn-danger btn-group-sm" style="display: block" @click="toRemove()">remove</button>     
+                      </div>                                          
+                    </div>                                                            
+              </template>
+            </div>        
           </div>        
-          <div class="btn-box" id="todo-control">
-            <button type="button" class="btn btn-danger" @click="removeAll()">Remove All</button>
+          <div class="btn-box" id="todo-control">            
             <button type="button" class="btn btn-success" @click="moveAll()">Move All</button>
+            <button type="button" class="btn btn-danger" @click="removeAll()">Remove All</button>
           </div>
         </div>      
         <div class="col-4" id="done-view">
@@ -58,16 +52,25 @@
             <div class="alert alert-info" role="alert">
               Done List
             </div>
-            <ul class="list-group">
-              <li class="list-group-item active">Cras justo odio</li>
-              <v-for>
-              <!-- content list using component -->
-              </v-for>
-            </ul>
+            <div class="list-group">
+                <template v-for="item in doneList">                                  
+                    <div class="list-group-item d-flex flex-nowrap" :key="item.id">                                     
+                      <div class="col-2 align-self-baseline">
+                       <input type="checkbox"  :key="item.id">
+                      </div>
+                      <div class="col-5 align-self-baseline">                      
+                      <p>{{ item }}</p> 
+                      </div>
+                      <div class="col- 2 btn-group-sm align-self-baseline" role="group">
+                        <button type="button" class="btn btn-primary btn-group-sm" style="display: block" @click="toMove()"> revert </button>     
+                      </div>                                            
+                    </div>                                                               
+                </template>
+            </div>
           </div>        
-          <div class="btn-box" id="done-control">
-            <button type="button" class="btn btn-danger" @click="removeAll()">Remove All</button>
+          <div class="btn-box" id="done-control">            
             <button type="button" class="btn btn-success" @click="moveAll()">Move All</button>
+            <button type="button" class="btn btn-danger" @click="removeAll()">Remove All</button>
           </div>
         </div>
       </div>
@@ -79,10 +82,46 @@
 export default {
   name: 'HelloWorld',
   data: function () {
-    return {
-      msg: 'todo'
+    return {    
+      todoList: {},
+      doneList: {
+       '0' : 'TEST',
+       '1' : 'TEST2' 
+      },
+      inputString: '',
+      checkedTodoList: []
     }
+  },
+  methods: {
+    addList: function () {
+      let ix, ixLen;
+      let keys = Object.keys(this.todoList);      
+      this.$set(this.todoList, keys.length,this.inputString);
+
+      for(ix = 0, ixLen = keys.length; ix < ixLen; ix++){
+        localStorage.setItem(keys[ix],this.todoList[keys[ix]]);
+      }
+      
+      localStorage.setItem('length',this.todoList.length);
+    },
+    toMove: function () {
+      
+    },
+    toRemove: function () {
+      console.log(this.checkedTodoList);
+    }
+  },
+  mounted: function () {
+    let obj= {};
+    let temp;
+    let ix, ixLen;    
+    ixLen = localStorage['length'];
+    for(ix = 0; ix < ixLen; ix++){
+       obj[ix] = localStorage.getItem(ix) ? localStorage.getItem(ix) : '';      
+    }
+    this.todoList = Object.assign({}, this.todoList, obj);
   }
+  
 }
 </script>
 
